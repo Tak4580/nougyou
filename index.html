@@ -5,63 +5,34 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>kintone接続テスト</title>
 <style>
-body{margin:0;background:#f4f6f8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:#1f2933}
-main{max-width:640px;margin:48px auto;padding:0 16px}
-section{background:#fff;border:1px solid #dfe4e8;border-radius:10px;padding:28px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
-h1{margin:0 0 8px;font-size:24px}.lead{color:#68737d;margin:0 0 24px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.full{grid-column:1/-1}
-label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
-input,select{width:100%;height:44px;padding:0 12px;border:1px solid #ccd4da;border-radius:6px;font:inherit;box-sizing:border-box}
-.actions{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
-button{border:0;border-radius:6px;padding:12px 18px;font-weight:700;cursor:pointer}
-.primary{background:#1677c8;color:#fff}.secondary{background:#e8edf1;color:#27313a}
-#result{display:none;margin-top:18px;padding:14px;border-radius:6px;white-space:pre-wrap}
-#result.ok{display:block;background:#edf9f0;color:#166534;border:1px solid #b8dfc2}
-#result.error{display:block;background:#fff1f0;color:#b42318;border:1px solid #f0c2bd}
-.note{font-size:12px;color:#6b7280;line-height:1.6;margin-top:18px}
-@media(max-width:600px){main{margin:20px auto}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+:root{--bg:#f4f6f8;--panel:#fff;--ink:#1f2933;--muted:#68737d;--line:#dfe4e8;--brand:#13795b;--brand-dark:#0f6249;--ok-bg:#edf9f0;--ok:#166534;--ok-line:#b8dfc2;--error-bg:#fff1f0;--error:#b42318;--error-line:#f0c2bd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}main{width:min(680px,calc(100% - 32px));margin:48px auto}.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.06)}h1{margin:0 0 8px;font-size:24px}.lead{margin:0 0 28px;color:var(--muted);line-height:1.7}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.full{grid-column:1/-1}label{display:block;margin-bottom:7px;font-size:13px;font-weight:700}input,select{width:100%;height:44px;padding:0 12px;border:1px solid #cfd6dc;border-radius:6px;background:#fff;font:inherit}input:focus,select:focus{outline:2px solid rgba(19,121,91,.16);border-color:var(--brand)}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}button{border:0;border-radius:6px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.primary{background:var(--brand);color:#fff}.primary:hover{background:var(--brand-dark)}.secondary{background:#e8edf1;color:#27313a}#result{display:none;margin-top:20px;border-radius:6px;padding:14px 16px;line-height:1.7;white-space:pre-wrap}#result.ok{display:block;background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}#result.error{display:block;background:var(--error-bg);color:var(--error);border:1px solid var(--error-line)}.note{margin-top:18px;color:var(--muted);font-size:12px;line-height:1.7}@media(max-width:600px){main{margin:20px auto}.panel{padding:20px}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
 </head>
 <body>
-<main><section>
+<main><section class="panel">
 <h1>kintone接続テスト</h1>
-<p class="lead">送信すると「日本農業新聞 購読者管理」に1件登録します。</p>
+<p class="lead">GitHub Pages → Google Apps Script → kintone の順で登録します。</p>
 <form id="form">
 <div class="grid">
-<div class="full"><label>氏名</label><input name="name" value="GitHub接続テスト" required></div>
-<div><label>契約種別</label><select name="contract_type"><option>紙版</option><option>電子版</option><option>併読</option></select></div>
-<div><label>契約状態</label><select name="contract_status"><option>購読中</option><option>解約予定</option><option>解約済</option></select></div>
-<div><label>購読開始日</label><input name="start_date" type="date" required></div>
+<div class="full"><label for="name">氏名</label><input id="name" name="name" value="GitHub・GAS接続テスト" required></div>
+<div><label for="contract_type">契約種別</label><select id="contract_type" name="contract_type"><option value="紙版">紙版</option><option value="電子版">電子版</option><option value="併読">併読</option></select></div>
+<div><label for="contract_status">契約状態</label><select id="contract_status" name="contract_status"><option value="購読中">購読中</option><option value="解約予定">解約予定</option><option value="解約済">解約済</option></select></div>
+<div><label for="start_date">購読開始日</label><input id="start_date" name="start_date" type="date" required></div>
+<div class="full" aria-hidden="true" style="position:absolute;left:-9999px"><label for="website">Website</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
 </div>
-<div class="actions">
-<button class="primary" id="submitBtn" type="submit">kintoneへ登録</button>
-<button class="secondary" id="healthBtn" type="button">接続先を確認</button>
-</div>
+<div class="actions"><button class="primary" id="submitBtn" type="submit">kintoneへ登録</button><button class="secondary" id="healthBtn" type="button">接続確認</button></div>
 </form>
-<div id="result"></div>
-<p class="note">APIトークンはHTMLに置かず、Cloudflare Workerに保存します。</p>
+<div id="result" role="status"></div>
+<p class="note">kintoneのAPIトークンはGAS側だけに保存され、GitHub Pagesには表示されません。</p>
 </section></main>
 <script>
-const API_BASE_URL='https://tak4580-example.workers.dev';
-const form=document.getElementById('form');
-const result=document.getElementById('result');
-form.start_date.value=new Date().toISOString().slice(0,10);
-function show(type,msg){result.className=type;result.textContent=msg}
-async function read(res){const t=await res.text();try{return JSON.parse(t)}catch{return{ok:false,message:t||'応答形式が不正です'}}}
-document.getElementById('healthBtn').onclick=async()=>{
-  show('ok','接続確認中…');
-  try{const r=await fetch(API_BASE_URL+'/health');const d=await read(r);if(!r.ok||!d.ok)throw new Error(d.message);show('ok',d.message)}
-  catch(e){show('error','接続確認に失敗しました。\n'+e.message)}
-};
-form.onsubmit=async(e)=>{
-  e.preventDefault();show('ok','kintoneへ登録中…');
-  const payload=Object.fromEntries(new FormData(form).entries());
-  try{
-    const r=await fetch(API_BASE_URL+'/records',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const d=await read(r);if(!r.ok||!d.ok)throw new Error(d.message||'登録失敗');
-    show('ok','登録に成功しました。\nレコードID：'+d.recordId);
-  }catch(err){show('error','登録に失敗しました。\n'+err.message)}
-};
+const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbz8YjYaOTRpC5vuG6bhTaWWLAFC4J4k7-c_DXFTin130xvW4Q9S2jJcGCsujO6CvTkp/exec';
+const form=document.getElementById('form');const result=document.getElementById('result');const submitBtn=document.getElementById('submitBtn');const healthBtn=document.getElementById('healthBtn');form.start_date.value=new Date().toISOString().slice(0,10);
+function showResult(type,message){result.className=type;result.textContent=message}
+async function callGas(payload){const response=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),redirect:'follow'});const text=await response.text();try{return JSON.parse(text)}catch(_){throw new Error('GASからJSON以外の応答が返りました。デプロイURLを確認してください。')}}
+healthBtn.addEventListener('click',async()=>{healthBtn.disabled=true;showResult('ok','接続確認中…');try{const data=await callGas({action:'health'});if(!data.ok)throw new Error(data.message||'接続確認に失敗しました。');showResult('ok',data.message)}catch(error){showResult('error','接続確認に失敗しました。\n'+error.message)}finally{healthBtn.disabled=false}});
+form.addEventListener('submit',async(event)=>{event.preventDefault();submitBtn.disabled=true;showResult('ok','kintoneへ登録中…');const payload=Object.fromEntries(new FormData(form).entries());payload.action='create';try{const data=await callGas(payload);if(!data.ok)throw new Error(data.message||'登録に失敗しました。');showResult('ok','kintoneへの登録に成功しました。\nレコードID：'+data.recordId)}catch(error){showResult('error','登録に失敗しました。\n'+error.message)}finally{submitBtn.disabled=false}});
 </script>
 </body>
 </html>
