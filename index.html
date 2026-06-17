@@ -1,304 +1,70 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>日本農業新聞 購読者管理</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>日本農業新聞 購読者・契約管理</title>
 <style>
-:root{
-  --bg:#f4f6f8;--panel:#fff;--ink:#1f2933;--muted:#68737d;--line:#dfe4e8;
-  --brand:#13795b;--brand-dark:#0f6249;--danger:#b42318;--warning:#b7791f;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
-header{background:#fff;border-bottom:1px solid var(--line)}
-.header-inner{max-width:1100px;margin:auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-h1{font-size:22px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}
-main{max-width:1100px;margin:28px auto;padding:0 20px}
-.tabs{display:flex;gap:8px;margin-bottom:18px}
-.tab{background:#e8edf1;color:#27313a}
-.tab.active{background:var(--brand);color:#fff}
-.panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:24px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
-.hidden{display:none!important}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.full{grid-column:1/-1}
-label{display:block;margin-bottom:7px;font-size:13px;font-weight:700}
-input,select{width:100%;height:42px;padding:0 12px;border:1px solid #cfd6dc;border-radius:6px;background:#fff;font:inherit}
-input:focus,select:focus{outline:2px solid rgba(19,121,91,.16);border-color:var(--brand)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-button{border:0;border-radius:6px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer}
-button:disabled{opacity:.55;cursor:wait}
-.primary{background:var(--brand);color:#fff}.primary:hover{background:var(--brand-dark)}
-.secondary{background:#e8edf1;color:#27313a}
-.danger{background:#fff0ef;color:var(--danger);border:1px solid #efc4bf}
-.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap}
-.search{max-width:340px}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
-table{width:100%;border-collapse:collapse;min-width:760px}
-th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
-th{background:#f7f9fa;font-size:12px;color:#52606d}
-tr:last-child td{border-bottom:0}
-.status{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:700}
-.status-購読中{background:#e5f5ea;color:#166534}
-.status-解約予定{background:#fff3d6;color:#8a5a00}
-.status-解約済{background:#eceff2;color:#5b6570}
-.row-actions{display:flex;gap:6px}
-.mini{padding:6px 10px;font-size:12px}
-#result{display:none;margin:16px 0;padding:12px 14px;border-radius:6px;white-space:pre-wrap}
-#result.ok{display:block;background:#edf9f0;color:#166534;border:1px solid #b8dfc2}
-#result.error{display:block;background:#fff1f0;color:#b42318;border:1px solid #f0c2bd}
-.empty{padding:32px;text-align:center;color:var(--muted)}
-.loading{opacity:.6;pointer-events:none}
-@media(max-width:680px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.header-inner{align-items:flex-start;flex-direction:column}}
-</style>
-</head>
-<body>
-<header>
-  <div class="header-inner">
-    <div>
-      <h1>日本農業新聞 購読者管理</h1>
-      <div class="sub">GitHub Pages ＋ GAS ＋ kintone</div>
-    </div>
-    <button class="secondary" id="healthBtn">接続確認</button>
-  </div>
-</header>
-
+:root{--bg:#f5f7f8;--panel:#fff;--ink:#1f2933;--muted:#68737d;--line:#dfe4e8;--brand:#13795b;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line)}.head{max-width:1200px;margin:auto;padding:16px 22px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+h1{font-size:22px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}main{max-width:1200px;margin:24px auto;padding:0 18px}
+button{border:0;border-radius:6px;padding:10px 16px;font-weight:700;cursor:pointer}.primary,.tab.active{background:var(--brand);color:#fff}.secondary{background:#e8edf1}.danger{background:#fff0ef;color:var(--danger);border:1px solid #efc4bf}
+.tabs{display:flex;gap:8px;margin-bottom:16px}.panel,.section{background:#fff;border:1px solid var(--line);border-radius:9px;padding:20px}.hidden{display:none!important}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}.stat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px}.stat strong{display:block;font-size:24px}.stat span{font-size:12px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}.filters{display:flex;gap:8px;flex-wrap:wrap}
+input,select,textarea{width:100%;border:1px solid #ccd4da;border-radius:6px;font:inherit;background:#fff}input,select{height:42px;padding:0 11px}textarea{min-height:85px;padding:10px}
+.search{max-width:280px}.filter{max-width:170px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:1050px}
+th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{background:#f7f9fa;font-size:12px}.status{display:inline-block;padding:3px 8px;border-radius:999px;font-weight:700;font-size:12px}
+.status-購読中{background:#e5f5ea;color:#166534}.status-解約予定{background:#fff3d6;color:#8a5a00}.status-解約済{background:#eceff2;color:#5b6570}
+.form-layout{display:grid;grid-template-columns:1fr 280px;gap:18px}.form-main{display:flex;flex-direction:column;gap:14px}.section h3{margin:0 0 15px;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.help{font-size:11px;color:var(--muted);margin-top:5px}
+.side{position:sticky;top:20px;height:max-content}.summary{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.actions,.row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.mini{padding:6px 9px;font-size:12px}
+#result{display:none;margin:14px 0;padding:12px;border-radius:6px;white-space:pre-wrap}#result.ok{display:block;background:#edf9f0;color:#166534;border:1px solid #b8dfc2}#result.error{display:block;background:#fff1f0;color:#b42318;border:1px solid #f0c2bd}
+.empty{padding:30px;text-align:center;color:var(--muted)}@media(max-width:850px){.form-layout{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.side{position:static}.stats{grid-template-columns:1fr 1fr}}@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style></head><body>
+<header><div class="head"><div><h1>日本農業新聞 購読者・契約管理</h1><div class="sub">購読者情報・契約・配達店・支払・解約を一元管理</div></div><button id="healthBtn" class="secondary">接続確認</button></div></header>
 <main>
-  <div class="tabs">
-    <button class="tab active" data-view="list">登録一覧</button>
-    <button class="tab" data-view="form">新規登録</button>
-  </div>
+<div class="tabs"><button class="tab active" data-view="list">契約一覧</button><button class="tab secondary" data-view="form">新規登録</button></div>
+<div id="result"></div>
 
-  <div id="result" role="status"></div>
+<section id="listView">
+<div class="stats"><div class="stat"><span>全契約</span><strong id="sAll">0</strong></div><div class="stat"><span>購読中</span><strong id="sActive">0</strong></div><div class="stat"><span>解約予定</span><strong id="sPending">0</strong></div><div class="stat"><span>解約済</span><strong id="sEnded">0</strong></div></div>
+<div class="panel"><div class="toolbar"><div class="filters"><input id="keyword" class="search" placeholder="氏名・住所・電話・販売店で検索"><select id="statusFilter" class="filter"><option value="">すべての状態</option><option>購読中</option><option>解約予定</option><option>解約済</option></select><select id="mediaFilter" class="filter"><option value="">すべての媒体</option><option>紙版</option><option>電子版</option><option>併読</option></select></div><button id="reloadBtn" class="secondary">再読み込み</button></div>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>氏名</th><th>電話番号</th><th>媒体</th><th>状態</th><th>開始日</th><th>終了日</th><th>販売店</th><th>支払方法</th><th>操作</th></tr></thead><tbody id="listBody"></tbody></table><div id="empty" class="empty hidden">登録データがありません。</div></div></div>
+</section>
 
-  <section id="listView" class="panel">
-    <div class="toolbar">
-      <input id="keyword" class="search" placeholder="氏名・契約種別・契約状態で検索">
-      <button class="secondary" id="reloadBtn">再読み込み</button>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>氏名</th>
-            <th>契約種別</th>
-            <th>契約状態</th>
-            <th>購読開始日</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="listBody"></tbody>
-      </table>
-      <div id="empty" class="empty hidden">登録データがありません。</div>
-    </div>
-  </section>
-
-  <section id="formView" class="panel hidden">
-    <h2 id="formTitle" style="margin-top:0">新規登録</h2>
-    <form id="form">
-      <input type="hidden" id="record_id" name="record_id">
-      <div class="grid">
-        <div class="full">
-          <label for="name">氏名</label>
-          <input id="name" name="name" required>
-        </div>
-        <div>
-          <label for="contract_type">契約種別</label>
-          <select id="contract_type" name="contract_type">
-            <option value="紙版">紙版</option>
-            <option value="電子版">電子版</option>
-            <option value="併読">併読</option>
-          </select>
-        </div>
-        <div>
-          <label for="contract_status">契約状態</label>
-          <select id="contract_status" name="contract_status">
-            <option value="購読中">購読中</option>
-            <option value="解約予定">解約予定</option>
-            <option value="解約済">解約済</option>
-          </select>
-        </div>
-        <div>
-          <label for="start_date">購読開始日</label>
-          <input id="start_date" name="start_date" type="date" required>
-        </div>
-        <div aria-hidden="true" style="position:absolute;left:-9999px">
-          <label for="website">Website</label>
-          <input id="website" name="website" tabindex="-1" autocomplete="off">
-        </div>
-      </div>
-      <div class="actions">
-        <button class="primary" id="saveBtn" type="submit">登録する</button>
-        <button class="secondary" id="cancelBtn" type="button">一覧へ戻る</button>
-      </div>
-    </form>
-  </section>
+<section id="formView" class="hidden"><form id="form"><input type="hidden" name="record_id">
+<div class="form-layout"><div class="form-main">
+<div class="section"><h3>基本情報</h3><div class="grid"><div><label>作業月</label><input type="date" name="work_month"><div class="help">当月5日を初期設定</div></div><div><label>管理店舗</label><input name="management_store"></div><div><label>担当者</label><input name="staff"></div></div></div>
+<div class="section"><h3>購読者情報</h3><div class="grid"><div><label>組合員番号</label><input name="member_no"></div><div><label>氏名 *</label><input name="name" required></div><div><label>フリガナ</label><input name="furigana"></div><div><label>郵便番号</label><input name="zip_code"></div><div class="full"><label>住所</label><input name="address"></div><div><label>電話番号</label><input name="phone"></div><div><label>購読者属性</label><select name="subscriber_type"><option value=""></option><option>正組合員</option><option>准組合員</option><option>員外</option><option>その他</option></select></div></div></div>
+<div class="section"><h3>契約情報</h3><div class="grid"><div><label>購読媒体 *</label><select name="contract_type"><option>紙版</option><option>電子版</option><option>併読</option></select></div><div><label>購読部数</label><input type="number" min="1" name="copies" value="1"></div><div><label>契約状態 *</label><select name="contract_status"><option>購読中</option><option>解約予定</option><option>解約済</option></select></div><div><label>購読申込日</label><input type="date" name="application_date"></div><div><label>購読開始日 *</label><input type="date" name="start_date" required></div><div><label>購読証明書</label><select name="certificate"><option>発行しない</option><option>発行する</option></select></div><div class="full"><label>自由記入欄</label><textarea name="notes"></textarea></div></div></div>
+<div class="section" id="deliverySection"><h3>配達・販売店情報</h3><div class="grid"><div><label>販売店コード</label><input name="delivery_shop_code"></div><div><label>販売店名</label><input name="delivery_shop"></div><div class="full"><label>配達店向け備考</label><input name="delivery_note"></div></div></div>
+<div class="section"><h3>決済・電子版情報</h3><div class="grid"><div><label>支払方法</label><select name="payment_method"><option>JA口座振替</option><option>新聞販売店集金</option><option>クレジットカード</option><option>その他</option></select></div><div id="emailField"><label>電子版メールアドレス</label><input type="email" name="email"></div><div><label>領収書</label><select name="receipt"><option>発行しない</option><option>発行する</option></select></div></div>
+<div id="bankFields" class="grid" style="margin-top:14px"><div><label>金融機関コード</label><input name="bank_code"></div><div><label>支店コード</label><input name="bank_branch_code"></div><div><label>貯金種目</label><select name="account_type"><option value=""></option><option>普通</option><option>当座</option></select></div><div><label>口座番号</label><input name="account_number"></div><div><label>口座名義</label><input name="account_name"></div></div></div>
+<div class="section hidden" id="cancelSection"><h3>解約情報</h3><div class="grid"><div><label>解約受付日</label><input type="date" name="cancel_accept_date"></div><div><label>購読終了日</label><input type="date" name="end_date"></div><div class="full"><label>解約理由</label><textarea name="cancel_reason"></textarea></div></div></div>
+<div style="position:absolute;left:-9999px"><input name="website" tabindex="-1"></div>
+</div>
+<aside class="panel side"><h3 id="formTitle" style="margin-top:0">新規登録</h3><div class="summary"><span>媒体</span><strong id="sumMedia">紙版</strong></div><div class="summary"><span>状態</span><strong id="sumStatus">購読中</strong></div><div class="summary"><span>開始日</span><strong id="sumStart">－</strong></div><div class="summary"><span>販売店</span><strong id="sumShop">－</strong></div><div class="actions"><button id="saveBtn" class="primary" type="submit">登録する</button><button id="cancelBtn" class="secondary" type="button">一覧へ戻る</button></div></aside>
+</div></form></section>
 </main>
-
 <script>
-const GAS_WEB_APP_URL ='https://script.google.com/macros/s/AKfycbxDdeGTJk4-v3mriXQNYPR9AgWaUtudVYRMkn-9hvCq506gsjNdT2x0QgYiYf-Fgjp82A/exec';
-
-const state={records:[]};
-const listView=document.getElementById('listView');
-const formView=document.getElementById('formView');
-const listBody=document.getElementById('listBody');
-const empty=document.getElementById('empty');
-const result=document.getElementById('result');
-const form=document.getElementById('form');
-
-function showResult(type,message){
-  result.className=type;
-  result.textContent=message;
-}
-function clearResult(){
-  result.className='';
-  result.textContent='';
-}
-async function callGas(payload){
-  const response=await fetch(GAS_WEB_APP_URL,{
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(payload),
-    redirect:'follow'
-  });
-  const text=await response.text();
-  try{return JSON.parse(text)}
-  catch(_){throw new Error('GASからJSON以外の応答が返りました。デプロイURLを確認してください。')}
-}
-function setView(view){
-  const isList=view==='list';
-  listView.classList.toggle('hidden',!isList);
-  formView.classList.toggle('hidden',isList);
-  document.querySelectorAll('.tab').forEach(btn=>btn.classList.toggle('active',btn.dataset.view===view));
-}
-function resetForm(){
-  form.reset();
-  form.record_id.value='';
-  form.start_date.value=new Date().toISOString().slice(0,10);
-  document.getElementById('formTitle').textContent='新規登録';
-  document.getElementById('saveBtn').textContent='登録する';
-}
-function escapeHtml(value){
-  return String(value??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-}
-function render(records){
-  listBody.innerHTML='';
-  empty.classList.toggle('hidden',records.length!==0);
-  records.forEach(record=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${escapeHtml(record.id)}</td>
-      <td>${escapeHtml(record.name)}</td>
-      <td>${escapeHtml(record.contract_type)}</td>
-      <td><span class="status status-${escapeHtml(record.contract_status)}">${escapeHtml(record.contract_status)}</span></td>
-      <td>${escapeHtml(record.start_date)}</td>
-      <td>
-        <div class="row-actions">
-          <button class="secondary mini" data-action="edit" data-id="${record.id}">編集</button>
-          <button class="danger mini" data-action="delete" data-id="${record.id}">削除</button>
-        </div>
-      </td>`;
-    listBody.appendChild(tr);
-  });
-}
-async function loadRecords(){
-  listView.classList.add('loading');
-  try{
-    const data=await callGas({action:'list'});
-    if(!data.ok)throw new Error(data.message||'一覧取得に失敗しました。');
-    state.records=data.records||[];
-    applyFilter();
-  }catch(error){
-    showResult('error','一覧取得に失敗しました。\n'+error.message);
-  }finally{
-    listView.classList.remove('loading');
-  }
-}
-function applyFilter(){
-  const q=document.getElementById('keyword').value.trim().toLowerCase();
-  if(!q){render(state.records);return}
-  render(state.records.filter(r=>
-    [r.name,r.contract_type,r.contract_status,r.start_date,r.id]
-      .some(v=>String(v||'').toLowerCase().includes(q))
-  ));
-}
-function openEdit(id){
-  const record=state.records.find(r=>String(r.id)===String(id));
-  if(!record)return;
-  form.record_id.value=record.id;
-  form.name.value=record.name;
-  form.contract_type.value=record.contract_type;
-  form.contract_status.value=record.contract_status;
-  form.start_date.value=record.start_date;
-  document.getElementById('formTitle').textContent='登録内容を編集';
-  document.getElementById('saveBtn').textContent='更新する';
-  clearResult();
-  setView('form');
-}
-async function deleteRecord(id){
-  const record=state.records.find(r=>String(r.id)===String(id));
-  if(!confirm(`「${record?.name||id}」を削除しますか？`))return;
-  try{
-    const data=await callGas({action:'delete',record_id:id});
-    if(!data.ok)throw new Error(data.message||'削除に失敗しました。');
-    showResult('ok','削除しました。');
-    await loadRecords();
-  }catch(error){
-    showResult('error','削除に失敗しました。\n'+error.message);
-  }
-}
-
-document.querySelectorAll('.tab').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    if(btn.dataset.view==='form')resetForm();
-    clearResult();
-    setView(btn.dataset.view);
-  });
-});
-document.getElementById('cancelBtn').onclick=()=>{clearResult();setView('list')};
-document.getElementById('reloadBtn').onclick=loadRecords;
-document.getElementById('keyword').addEventListener('input',applyFilter);
-document.getElementById('healthBtn').onclick=async()=>{
-  showResult('ok','接続確認中…');
-  try{
-    const data=await callGas({action:'health'});
-    if(!data.ok)throw new Error(data.message);
-    showResult('ok',data.message);
-  }catch(error){
-    showResult('error','接続確認に失敗しました。\n'+error.message);
-  }
-};
-
-listBody.addEventListener('click',event=>{
-  const button=event.target.closest('button[data-action]');
-  if(!button)return;
-  if(button.dataset.action==='edit')openEdit(button.dataset.id);
-  if(button.dataset.action==='delete')deleteRecord(button.dataset.id);
-});
-
-form.addEventListener('submit',async event=>{
-  event.preventDefault();
-  const payload=Object.fromEntries(new FormData(form).entries());
-  payload.action=payload.record_id?'update':'create';
-
-  try{
-    document.getElementById('saveBtn').disabled=true;
-    const data=await callGas(payload);
-    if(!data.ok)throw new Error(data.message||'保存に失敗しました。');
-    showResult('ok',payload.action==='create'?'登録しました。':'更新しました。');
-    resetForm();
-    setView('list');
-    await loadRecords();
-  }catch(error){
-    showResult('error','保存に失敗しました。\n'+error.message);
-  }finally{
-    document.getElementById('saveBtn').disabled=false;
-  }
-});
-
-resetForm();
-loadRecords();
-</script>
-</body>
-</html>
+const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbz8YjYaOTRpC5vuG6bhTaWWLAFC4J4k7-c_DXFTin130xvW4Q9S2jJcGCsujO6CvTkp/exec';
+const state={records:[]},form=document.getElementById('form'),result=document.getElementById('result'),listBody=document.getElementById('listBody');
+const today=()=>new Date().toLocaleDateString('sv-SE'),month5=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-05'},monthEnd=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).toLocaleDateString('sv-SE')};
+function show(t,m){result.className=t;result.textContent=m}function clearMsg(){result.className='';result.textContent=''}function esc(v){return String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
+async function callGas(p){const r=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p),redirect:'follow'}),t=await r.text();try{return JSON.parse(t)}catch{throw new Error('GASからJSON以外の応答が返りました。')}}
+function setView(v){document.getElementById('listView').classList.toggle('hidden',v!=='list');document.getElementById('formView').classList.toggle('hidden',v!=='form');document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===v))}
+function resetForm(){form.reset();form.record_id.value='';form.work_month.value=month5();form.application_date.value=today();form.start_date.value=today();form.copies.value=1;form.contract_type.value='紙版';form.contract_status.value='購読中';form.payment_method.value='JA口座振替';document.getElementById('formTitle').textContent='新規登録';document.getElementById('saveBtn').textContent='登録する';updateUI()}
+function updateUI(){const m=form.contract_type.value,s=form.contract_status.value,p=form.payment_method.value;document.getElementById('deliverySection').classList.toggle('hidden',m==='電子版');document.getElementById('emailField').classList.toggle('hidden',m==='紙版');document.getElementById('bankFields').classList.toggle('hidden',p!=='JA口座振替');document.getElementById('cancelSection').classList.toggle('hidden',s==='購読中');if(s==='解約予定'&&!form.cancel_accept_date.value){form.cancel_accept_date.value=today();form.end_date.value=monthEnd()}document.getElementById('sumMedia').textContent=m;document.getElementById('sumStatus').textContent=s;document.getElementById('sumStart').textContent=form.start_date.value||'－';document.getElementById('sumShop').textContent=form.delivery_shop.value||'－'}
+function stats(){document.getElementById('sAll').textContent=state.records.length;document.getElementById('sActive').textContent=state.records.filter(x=>x.contract_status==='購読中').length;document.getElementById('sPending').textContent=state.records.filter(x=>x.contract_status==='解約予定').length;document.getElementById('sEnded').textContent=state.records.filter(x=>x.contract_status==='解約済').length}
+function render(rs){listBody.innerHTML='';document.getElementById('empty').classList.toggle('hidden',rs.length>0);rs.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.phone)}</td><td>${esc(r.contract_type)}</td><td><span class="status status-${esc(r.contract_status)}">${esc(r.contract_status)}</span></td><td>${esc(r.start_date)}</td><td>${esc(r.end_date)}</td><td>${esc(r.delivery_shop)}</td><td>${esc(r.payment_method)}</td><td><div class="row-actions"><button class="secondary mini" data-action="edit" data-id="${r.id}">編集</button><button class="danger mini" data-action="delete" data-id="${r.id}">削除</button></div></td>`;listBody.appendChild(tr)})}
+function filter(){const q=document.getElementById('keyword').value.toLowerCase(),s=document.getElementById('statusFilter').value,m=document.getElementById('mediaFilter').value;render(state.records.filter(r=>(!q||[r.name,r.address,r.phone,r.delivery_shop,r.member_no].some(v=>String(v||'').toLowerCase().includes(q)))&&(!s||r.contract_status===s)&&(!m||r.contract_type===m)))}
+async function load(){try{const d=await callGas({action:'list'});if(!d.ok)throw new Error(d.message);state.records=d.records||[];stats();filter()}catch(e){show('error','一覧取得に失敗しました。\n'+e.message)}}
+function edit(id){const r=state.records.find(x=>String(x.id)===String(id));if(!r)return;Object.entries(r).forEach(([k,v])=>{if(form.elements[k])form.elements[k].value=v??''});form.record_id.value=r.id;document.getElementById('formTitle').textContent='契約内容を編集';document.getElementById('saveBtn').textContent='更新する';updateUI();clearMsg();setView('form')}
+async function del(id){const r=state.records.find(x=>String(x.id)===String(id));if(!confirm(`「${r?.name||id}」を削除しますか？`))return;try{const d=await callGas({action:'delete',record_id:id});if(!d.ok)throw new Error(d.message);show('ok','削除しました。');await load()}catch(e){show('error','削除に失敗しました。\n'+e.message)}}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{clearMsg();if(b.dataset.view==='form')resetForm();setView(b.dataset.view)});
+['contract_type','contract_status','payment_method','start_date','delivery_shop'].forEach(n=>{form.elements[n].addEventListener('change',updateUI);form.elements[n].addEventListener('input',updateUI)});
+document.getElementById('keyword').oninput=filter;document.getElementById('statusFilter').onchange=filter;document.getElementById('mediaFilter').onchange=filter;document.getElementById('reloadBtn').onclick=load;document.getElementById('cancelBtn').onclick=()=>setView('list');
+document.getElementById('healthBtn').onclick=async()=>{try{const d=await callGas({action:'health'});if(!d.ok)throw new Error(d.message);show('ok',d.message)}catch(e){show('error',e.message)}};
+listBody.onclick=e=>{const b=e.target.closest('button[data-action]');if(!b)return;b.dataset.action==='edit'?edit(b.dataset.id):del(b.dataset.id)};
+form.onsubmit=async e=>{e.preventDefault();const p=Object.fromEntries(new FormData(form).entries());p.action=p.record_id?'update':'create';try{const d=await callGas(p);if(!d.ok)throw new Error(d.message);show('ok',p.action==='create'?'登録しました。':'更新しました。');resetForm();setView('list');await load()}catch(err){show('error','保存に失敗しました。\n'+err.message)}};
+resetForm();load();
+</script></body></html>
