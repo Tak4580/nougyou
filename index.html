@@ -46,7 +46,7 @@ th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;font
 </div></form></section>
 </main>
 <script>
-const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbz8YjYaOTRpC5vuG6bhTaWWLAFC4J4k7-c_DXFTin130xvW4Q9S2jJcGCsujO6CvTkp/exec';
+const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbzICttdhhYIgvSkh0its-_mCP1qq5LaTS-9Oe4ScxqoU5vVnHmYU9SNv1QbOzaPdOJekA/exec';
 const state={records:[]},form=document.getElementById('form'),result=document.getElementById('result'),listBody=document.getElementById('listBody');
 const today=()=>new Date().toLocaleDateString('sv-SE'),month5=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-05'},monthEnd=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).toLocaleDateString('sv-SE')};
 function show(t,m){result.className=t;result.textContent=m}function clearMsg(){result.className='';result.textContent=''}function esc(v){return String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
