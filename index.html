@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>日本農業新聞 購読者管理</title>
+<style>
+:root{
+  --bg:#f4f6f8;--panel:#fff;--ink:#1f2933;--muted:#68737d;--line:#dfe4e8;
+  --brand:#13795b;--brand-dark:#0f6249;--danger:#b42318;--warning:#b7791f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line)}
+.header-inner{max-width:1100px;margin:auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+h1{font-size:22px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+main{max-width:1100px;margin:28px auto;padding:0 20px}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tab{background:#e8edf1;color:#27313a}
+.tab.active{background:var(--brand);color:#fff}
+.panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:24px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.full{grid-column:1/-1}
+label{display:block;margin-bottom:7px;font-size:13px;font-weight:700}
+input,select{width:100%;height:42px;padding:0 12px;border:1px solid #cfd6dc;border-radius:6px;background:#fff;font:inherit}
+input:focus,select:focus{outline:2px solid rgba(19,121,91,.16);border-color:var(--brand)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+button{border:0;border-radius:6px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.primary{background:var(--brand);color:#fff}.primary:hover{background:var(--brand-dark)}
+.secondary{background:#e8edf1;color:#27313a}
+.danger{background:#fff0ef;color:var(--danger);border:1px solid #efc4bf}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap}
+.search{max-width:340px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
+th{background:#f7f9fa;font-size:12px;color:#52606d}
+tr:last-child td{border-bottom:0}
+.status{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.status-購読中{background:#e5f5ea;color:#166534}
+.status-解約予定{background:#fff3d6;color:#8a5a00}
+.status-解約済{background:#eceff2;color:#5b6570}
+.row-actions{display:flex;gap:6px}
+.mini{padding:6px 10px;font-size:12px}
+#result{display:none;margin:16px 0;padding:12px 14px;border-radius:6px;white-space:pre-wrap}
+#result.ok{display:block;background:#edf9f0;color:#166534;border:1px solid #b8dfc2}
+#result.error{display:block;background:#fff1f0;color:#b42318;border:1px solid #f0c2bd}
+.empty{padding:32px;text-align:center;color:var(--muted)}
+.loading{opacity:.6;pointer-events:none}
+@media(max-width:680px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.header-inner{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>日本農業新聞 購読者管理</h1>
+      <div class="sub">GitHub Pages ＋ GAS ＋ kintone</div>
+    </div>
+    <button class="secondary" id="healthBtn">接続確認</button>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" data-view="list">登録一覧</button>
+    <button class="tab" data-view="form">新規登録</button>
+  </div>
+
+  <div id="result" role="status"></div>
+
+  <section id="listView" class="panel">
+    <div class="toolbar">
+      <input id="keyword" class="search" placeholder="氏名・契約種別・契約状態で検索">
+      <button class="secondary" id="reloadBtn">再読み込み</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>氏名</th>
+            <th>契約種別</th>
+            <th>契約状態</th>
+            <th>購読開始日</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="listBody"></tbody>
+      </table>
+      <div id="empty" class="empty hidden">登録データがありません。</div>
+    </div>
+  </section>
+
+  <section id="formView" class="panel hidden">
+    <h2 id="formTitle" style="margin-top:0">新規登録</h2>
+    <form id="form">
+      <input type="hidden" id="record_id" name="record_id">
+      <div class="grid">
+        <div class="full">
+          <label for="name">氏名</label>
+          <input id="name" name="name" required>
+        </div>
+        <div>
+          <label for="contract_type">契約種別</label>
+          <select id="contract_type" name="contract_type">
+            <option value="紙版">紙版</option>
+            <option value="電子版">電子版</option>
+            <option value="併読">併読</option>
+          </select>
+        </div>
+        <div>
+          <label for="contract_status">契約状態</label>
+          <select id="contract_status" name="contract_status">
+            <option value="購読中">購読中</option>
+            <option value="解約予定">解約予定</option>
+            <option value="解約済">解約済</option>
+          </select>
+        </div>
+        <div>
+          <label for="start_date">購読開始日</label>
+          <input id="start_date" name="start_date" type="date" required>
+        </div>
+        <div aria-hidden="true" style="position:absolute;left:-9999px">
+          <label for="website">Website</label>
+          <input id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="saveBtn" type="submit">登録する</button>
+        <button class="secondary" id="cancelBtn" type="button">一覧へ戻る</button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<script>
+const GAS_WEB_APP_URL =
+  'https://script.google.com/macros/s/AKfycbz8YjYaOTRpC5vuG6bhTaWWLAFC4J4k7-c_DXFTin130xvW4Q9S2jJcGCsujO6CvTkp/exec';
+
+const state={records:[]};
+const listView=document.getElementById('listView');
+const formView=document.getElementById('formView');
+const listBody=document.getElementById('listBody');
+const empty=document.getElementById('empty');
+const result=document.getElementById('result');
+const form=document.getElementById('form');
+
+function showResult(type,message){
+  result.className=type;
+  result.textContent=message;
+}
+function clearResult(){
+  result.className='';
+  result.textContent='';
+}
+async function callGas(payload){
+  const response=await fetch(GAS_WEB_APP_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload),
+    redirect:'follow'
+  });
+  const text=await response.text();
+  try{return JSON.parse(text)}
+  catch(_){throw new Error('GASからJSON以外の応答が返りました。デプロイURLを確認してください。')}
+}
+function setView(view){
+  const isList=view==='list';
+  listView.classList.toggle('hidden',!isList);
+  formView.classList.toggle('hidden',isList);
+  document.querySelectorAll('.tab').forEach(btn=>btn.classList.toggle('active',btn.dataset.view===view));
+}
+function resetForm(){
+  form.reset();
+  form.record_id.value='';
+  form.start_date.value=new Date().toISOString().slice(0,10);
+  document.getElementById('formTitle').textContent='新規登録';
+  document.getElementById('saveBtn').textContent='登録する';
+}
+function escapeHtml(value){
+  return String(value??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+function render(records){
+  listBody.innerHTML='';
+  empty.classList.toggle('hidden',records.length!==0);
+  records.forEach(record=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${escapeHtml(record.id)}</td>
+      <td>${escapeHtml(record.name)}</td>
+      <td>${escapeHtml(record.contract_type)}</td>
+      <td><span class="status status-${escapeHtml(record.contract_status)}">${escapeHtml(record.contract_status)}</span></td>
+      <td>${escapeHtml(record.start_date)}</td>
+      <td>
+        <div class="row-actions">
+          <button class="secondary mini" data-action="edit" data-id="${record.id}">編集</button>
+          <button class="danger mini" data-action="delete" data-id="${record.id}">削除</button>
+        </div>
+      </td>`;
+    listBody.appendChild(tr);
+  });
+}
+async function loadRecords(){
+  listView.classList.add('loading');
+  try{
+    const data=await callGas({action:'list'});
+    if(!data.ok)throw new Error(data.message||'一覧取得に失敗しました。');
+    state.records=data.records||[];
+    applyFilter();
+  }catch(error){
+    showResult('error','一覧取得に失敗しました。\n'+error.message);
+  }finally{
+    listView.classList.remove('loading');
+  }
+}
+function applyFilter(){
+  const q=document.getElementById('keyword').value.trim().toLowerCase();
+  if(!q){render(state.records);return}
+  render(state.records.filter(r=>
+    [r.name,r.contract_type,r.contract_status,r.start_date,r.id]
+      .some(v=>String(v||'').toLowerCase().includes(q))
+  ));
+}
+function openEdit(id){
+  const record=state.records.find(r=>String(r.id)===String(id));
+  if(!record)return;
+  form.record_id.value=record.id;
+  form.name.value=record.name;
+  form.contract_type.value=record.contract_type;
+  form.contract_status.value=record.contract_status;
+  form.start_date.value=record.start_date;
+  document.getElementById('formTitle').textContent='登録内容を編集';
+  document.getElementById('saveBtn').textContent='更新する';
+  clearResult();
+  setView('form');
+}
+async function deleteRecord(id){
+  const record=state.records.find(r=>String(r.id)===String(id));
+  if(!confirm(`「${record?.name||id}」を削除しますか？`))return;
+  try{
+    const data=await callGas({action:'delete',record_id:id});
+    if(!data.ok)throw new Error(data.message||'削除に失敗しました。');
+    showResult('ok','削除しました。');
+    await loadRecords();
+  }catch(error){
+    showResult('error','削除に失敗しました。\n'+error.message);
+  }
+}
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(btn.dataset.view==='form')resetForm();
+    clearResult();
+    setView(btn.dataset.view);
+  });
+});
+document.getElementById('cancelBtn').onclick=()=>{clearResult();setView('list')};
+document.getElementById('reloadBtn').onclick=loadRecords;
+document.getElementById('keyword').addEventListener('input',applyFilter);
+document.getElementById('healthBtn').onclick=async()=>{
+  showResult('ok','接続確認中…');
+  try{
+    const data=await callGas({action:'health'});
+    if(!data.ok)throw new Error(data.message);
+    showResult('ok',data.message);
+  }catch(error){
+    showResult('error','接続確認に失敗しました。\n'+error.message);
+  }
+};
+
+listBody.addEventListener('click',event=>{
+  const button=event.target.closest('button[data-action]');
+  if(!button)return;
+  if(button.dataset.action==='edit')openEdit(button.dataset.id);
+  if(button.dataset.action==='delete')deleteRecord(button.dataset.id);
+});
+
+form.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const payload=Object.fromEntries(new FormData(form).entries());
+  payload.action=payload.record_id?'update':'create';
+
+  try{
+    document.getElementById('saveBtn').disabled=true;
+    const data=await callGas(payload);
+    if(!data.ok)throw new Error(data.message||'保存に失敗しました。');
+    showResult('ok',payload.action==='create'?'登録しました。':'更新しました。');
+    resetForm();
+    setView('list');
+    await loadRecords();
+  }catch(error){
+    showResult('error','保存に失敗しました。\n'+error.message);
+  }finally{
+    document.getElementById('saveBtn').disabled=false;
+  }
+});
+
+resetForm();
+loadRecords();
+</script>
+</body>
+</html>
