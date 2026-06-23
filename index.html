@@ -370,6 +370,7 @@ async function callGas(payload) {
 }
 
 let memberLookupSeq = 0;
+let lastMemberLookup = { no: '', record: null };
 async function lookupMember() {
   const input = form.elements.member_no;
   const no = String(input.value || '').trim();
@@ -385,10 +386,12 @@ async function lookupMember() {
     if (seq !== memberLookupSeq) return;
     if (!d.ok) throw new Error(d.message);
     if (!d.record) {
+      lastMemberLookup = { no: '', record: null };
       status.textContent = '一致する組合員は見つかりませんでした。';
       return;
     }
     applyMemberRecord(d.record);
+    lastMemberLookup = { no, record: d.record };
     status.textContent = '組合員名簿から読み込みました。';
   } catch(e) {
     if (seq === memberLookupSeq) {
@@ -411,6 +414,12 @@ function applyMemberRecord(r) {
   updateUI();
 }
 
+function mergeMemberRecordPayload(p, r) {
+  ['member_no','name','furigana','zip_code','address','phone','subscriber_type','management_store'].forEach(k => {
+    if (r[k] !== undefined && r[k] !== null) p[k] = r[k];
+  });
+}
+
 // ── view switching ────────────────────────────────────
 function setView(v) {
   document.getElementById('listView').classList.toggle('hidden', v !== 'list');
@@ -421,6 +430,7 @@ function setView(v) {
 // ── form ──────────────────────────────────────────────
 function resetForm() {
   form.reset();
+  lastMemberLookup = { no: '', record: null };
   form.record_id.value         = '';
   form.work_month.value        = month5();
   form.application_date.value  = today();
@@ -550,6 +560,7 @@ document.getElementById('reloadBtn').onclick      = load;
 document.getElementById('cancelBtn').onclick      = () => setView('list');
 document.getElementById('memberLookupBtn').onclick = lookupMember;
 form.elements.member_no.addEventListener('change', lookupMember);
+form.elements.member_no.addEventListener('input', e => { if (String(e.target.value || '').trim() !== lastMemberLookup.no) lastMemberLookup = { no: '', record: null }; });
 form.elements.member_no.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookupMember(); } });
 
 document.getElementById('healthBtn').onclick = async () => {
@@ -575,12 +586,19 @@ form.onsubmit = async e => {
   e.preventDefault();
   if(!form.reportValidity()) return;
   const saveBtn=document.getElementById('saveBtn'); const buttonLabel=saveBtn.querySelector('.button-label'); const originalLabel=buttonLabel.textContent; saveBtn.classList.add('loading'); saveBtn.disabled=true; buttonLabel.textContent = form.record_id.value ? '更新中…' : '登録中…';
+  const memberNo = String(form.elements.member_no.value || '').trim();
+  if (lastMemberLookup.record && lastMemberLookup.no === memberNo) applyMemberRecord(lastMemberLookup.record);
   const p = Object.fromEntries(new FormData(form).entries());
+  if (lastMemberLookup.record && lastMemberLookup.no === memberNo) mergeMemberRecordPayload(p, lastMemberLookup.record);
   p.action = p.record_id ? 'update' : 'create';
   try {
     const d = await callGas(p);
     if (!d.ok) throw new Error(d.message);
     show('ok', p.action === 'create' ? '登録しました。' : '更新しました。');
+    if (p.action === 'update') {
+      state.records = state.records.map(r => String(r.id) === String(p.record_id) ? Object.assign({}, r, p, { id: r.id }) : r);
+      filter();
+    }
     resetForm();
     setView('list');
     await load();
