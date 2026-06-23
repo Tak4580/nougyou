@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><title>日本農業新聞 購読管理｜登録・編集</title><link rel="stylesheet" href="style.css"></head><body>
+<div class="app"><header class="app-header"><div class="header-inner"><div class="logo"><div class="logo-mark" aria-hidden="true">N</div><div><div class="logo-title">日本農業新聞 購読管理</div><div class="logo-sub">SUBSCRIPTION MANAGEMENT</div></div></div><nav class="nav" aria-label="主要メニュー"><a class="tab" href="index.html"><span class="tab-icon">▤</span><span>契約一覧</span></a><a class="tab tab-primary active" href="edit.html"><span class="tab-icon">＋</span><span>新規登録</span></a></nav><button id="healthBtn" class="connection-status" aria-label="接続状態を確認"><span class="status-dot"></span><span class="connection-label">接続確認</span></button></div></header>
+<main class="main"><div id="result"></div>
+    <!-- ── Form view ── -->
+    <section id="formView">
+      <form id="form">
+        <input type="hidden" name="record_id">
+        <div class="form-layout">
+          <div class="form-main">
+
+            <!-- 基本情報 -->
+            <div class="section">
+              <div class="section-title">基本情報</div>
+              <div class="grid">
+                <div>
+                  <label>作業月</label>
+                  <input type="date" name="work_month">
+                  <div class="help">当月5日を初期設定</div>
+                </div>
+                <div>
+                  <label>管理店舗</label>
+                  <input name="management_store">
+                </div>
+                <div>
+                  <label>担当者</label>
+                  <input name="staff">
+                </div>
+              </div>
+            </div>
+
+            <!-- 購読者情報 -->
+            <div class="section">
+              <div class="section-title">購読者情報</div>
+              <div class="grid">
+                <div>
+                  <label>組合員番号</label>
+                  <div class="member-lookup">
+                    <input name="member_no" autocomplete="off">
+                    <button type="button" id="memberLookupBtn" class="btn-secondary">読込</button>
+                  </div>
+                  <div class="help" id="memberLookupStatus"></div>
+                </div>
+                <div>
+                  <label>氏名<span class="req">*</span></label>
+                  <input name="name" required>
+                </div>
+                <div>
+                  <label>フリガナ</label>
+                  <input name="furigana">
+                </div>
+                <div>
+                  <label>郵便番号</label>
+                  <input name="zip_code" placeholder="000-0000">
+                </div>
+                <div class="full">
+                  <label>住所</label>
+                  <input name="address">
+                </div>
+                <div>
+                  <label>電話番号</label>
+                  <input name="phone" placeholder="000-0000-0000">
+                </div>
+                <div>
+                  <label>購読者属性</label>
+                  <select name="subscriber_type">
+                    <option value=""></option>
+                    <option>正組合員</option>
+                    <option>准組合員</option>
+                    <option>員外</option>
+                    <option>その他</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 契約情報 -->
+            <div class="section">
+              <div class="section-title">契約情報</div>
+              <div class="grid">
+                <div>
+                  <label>購読媒体<span class="req">*</span></label>
+                  <select name="contract_type">
+                    <option>紙版</option>
+                    <option>電子版</option>
+                    <option>併読</option>
+                  </select>
+                </div>
+                <div>
+                  <label>購読部数</label>
+                  <input type="number" min="1" name="copies" value="1">
+                </div>
+                <div>
+                  <label>契約状態<span class="req">*</span></label>
+                  <select name="contract_status">
+                    <option>購読中</option>
+                    <option>解約予定</option>
+                    <option>解約済</option>
+                  </select>
+                </div>
+                <div>
+                  <label>購読申込日</label>
+                  <input type="date" name="application_date">
+                </div>
+                <div>
+                  <label>購読開始日<span class="req">*</span></label>
+                  <input type="date" name="start_date" required>
+                </div>
+                <div>
+                  <label>購読証明書</label>
+                  <select name="certificate">
+                    <option>発行しない</option>
+                    <option>発行する</option>
+                  </select>
+                </div>
+                <div class="full">
+                  <label>自由記入欄</label>
+                  <textarea name="notes" placeholder="備考・特記事項など"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 配達・販売店情報 -->
+            <div class="section" id="deliverySection">
+              <div class="section-title">配達・販売店情報</div>
+              <div class="grid">
+                <div>
+                  <label>販売店コード</label>
+                  <input name="delivery_shop_code">
+                </div>
+                <div>
+                  <label>販売店名</label>
+                  <input name="delivery_shop">
+                </div>
+                <div class="full">
+                  <label>配達店向け備考</label>
+                  <input name="delivery_note">
+                </div>
+              </div>
+            </div>
+
+            <!-- 決済・電子版情報 -->
+            <div class="section">
+              <div class="section-title">決済・電子版情報</div>
+              <div class="grid">
+                <div>
+                  <label>支払方法</label>
+                  <select name="payment_method">
+                    <option>JA口座振替</option>
+                    <option>新聞販売店集金</option>
+                    <option>クレジットカード</option>
+                    <option>その他</option>
+                  </select>
+                </div>
+                <div id="emailField">
+                  <label>電子版メールアドレス</label>
+                  <input type="email" name="email">
+                </div>
+                <div>
+                  <label>領収書</label>
+                  <select name="receipt">
+                    <option>発行しない</option>
+                    <option>発行する</option>
+                  </select>
+                </div>
+              </div>
+              <div id="bankFields" class="grid" style="margin-top:14px">
+                <div>
+                  <label>金融機関コード</label>
+                  <input name="bank_code">
+                </div>
+                <div>
+                  <label>支店コード</label>
+                  <input name="bank_branch_code">
+                </div>
+                <div>
+                  <label>貯金種目</label>
+                  <select name="account_type">
+                    <option value=""></option>
+                    <option>普通</option>
+                    <option>当座</option>
+                  </select>
+                </div>
+                <div>
+                  <label>口座番号</label>
+                  <input name="account_number">
+                </div>
+                <div>
+                  <label>口座名義</label>
+                  <input name="account_name">
+                </div>
+              </div>
+            </div>
+
+            <!-- 解約情報（条件付き） -->
+            <div class="section hidden" id="cancelSection">
+              <div class="section-title">解約情報</div>
+              <div class="grid">
+                <div>
+                  <label>解約受付日</label>
+                  <input type="date" name="cancel_accept_date">
+                </div>
+                <div>
+                  <label>購読終了日</label>
+                  <input type="date" name="end_date">
+                </div>
+                <div class="full">
+                  <label>解約理由</label>
+                  <textarea name="cancel_reason" placeholder="解約理由を入力してください"></textarea>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /form-main -->
+
+          <!-- Side panel -->
+          <aside class="side">
+            <div class="side-panel">
+              <div class="side-heading"><div class="side-eyebrow">入力内容</div><div class="side-title" id="formTitle">新規登録</div><div class="side-description" id="formDescription">必要事項を入力して登録してください。</div></div>
+              <div class="summary-row"><span class="summary-key">媒体</span><strong class="summary-val" id="sumMedia">紙版</strong></div>
+              <div class="summary-row"><span class="summary-key">状態</span><strong class="summary-val" id="sumStatus">購読中</strong></div>
+              <div class="summary-row"><span class="summary-key">開始日</span><strong class="summary-val" id="sumStart">－</strong></div>
+              <div class="summary-row"><span class="summary-key">販売店</span><strong class="summary-val" id="sumShop">－</strong></div>
+              <div class="side-actions">
+                <button id="saveBtn" class="btn-primary save-button" type="submit"><span class="button-label">登録する</span></button>
+                <button id="cancelBtn" class="btn-secondary" type="button">一覧へ戻る</button>
+              </div>
+            </div>
+          </aside>
+
+        </div><!-- /form-layout -->
+      </form>
+    </section>
+</main></div>
+<script src="common.js"></script>
+<script src="edit.js"></script>
+</body>
+</html>
