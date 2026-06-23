@@ -5,6 +5,23 @@ let memberLookupSeq = 0;
 let lastMemberLookup = { no: '', record: null };
 let formDirty = false;
 
+// 組合員名簿から読み込む項目（組合員番号があるときは読み取り専用）
+const MEMBER_FIELDS = ['management_store','name','furigana','zip_code','address','phone','subscriber_type'];
+
+// 組合員番号の有無で名簿項目の編集可否を切り替える
+function setMemberLock(locked) {
+  MEMBER_FIELDS.forEach(n => {
+    const el = form.elements[n];
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.disabled = locked;
+    else el.readOnly = locked;
+    el.classList.toggle('member-locked', locked);
+  });
+}
+function syncMemberLock() {
+  setMemberLock(!!String(form.elements.member_no.value || '').trim());
+}
+
 async function lookupMember() {
   const input = form.elements.member_no;
   const no = String(input.value || '').trim();
@@ -46,6 +63,7 @@ function applyMemberRecord(r) {
   });
   formDirty = true;
   updateUI();
+  syncMemberLock();
 }
 
 function mergeMemberRecordPayload(p, r) {
@@ -70,6 +88,7 @@ function resetForm() {
   document.getElementById('formDescription').textContent = '必要事項を入力して登録してください。';
   document.querySelector('#saveBtn .button-label').textContent = '登録する';
   updateUI();
+  syncMemberLock();
 }
 
 function fillForm(r) {
@@ -79,6 +98,7 @@ function fillForm(r) {
   document.getElementById('formDescription').textContent = `${r.name || '選択した契約'}の内容を更新します。`;
   document.querySelector('#saveBtn .button-label').textContent = '更新する';
   updateUI();
+  syncMemberLock();
 }
 
 function updateUI() {
@@ -125,14 +145,16 @@ async function loadRecord(id) {
 document.getElementById('cancelBtn').onclick = () => { formDirty = false; location.href = 'index.html'; };
 document.getElementById('memberLookupBtn').onclick = lookupMember;
 form.elements.member_no.addEventListener('change', lookupMember);
-form.elements.member_no.addEventListener('input', e => { if (String(e.target.value || '').trim() !== lastMemberLookup.no) lastMemberLookup = { no: '', record: null }; });
+form.elements.member_no.addEventListener('input', e => { if (String(e.target.value || '').trim() !== lastMemberLookup.no) lastMemberLookup = { no: '', record: null }; syncMemberLock(); });
 form.elements.member_no.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookupMember(); } });
 
 form.onsubmit = async e => {
   e.preventDefault();
+  const memberNo = String(form.elements.member_no.value || '').trim();
+  // 組合員番号があるのに未読込なら、保存前に名簿を読み込んで反映
+  if (memberNo && !(lastMemberLookup.record && lastMemberLookup.no === memberNo)) await lookupMember();
   if(!form.reportValidity()) return;
   const saveBtn=document.getElementById('saveBtn'); const buttonLabel=saveBtn.querySelector('.button-label'); const originalLabel=buttonLabel.textContent; saveBtn.classList.add('loading'); saveBtn.disabled=true; buttonLabel.textContent = form.record_id.value ? '更新中…' : '登録中…';
-  const memberNo = String(form.elements.member_no.value || '').trim();
   if (lastMemberLookup.record && lastMemberLookup.no === memberNo) applyMemberRecord(lastMemberLookup.record);
   const p = Object.fromEntries(new FormData(form).entries());
   if (lastMemberLookup.record && lastMemberLookup.no === memberNo) mergeMemberRecordPayload(p, lastMemberLookup.record);

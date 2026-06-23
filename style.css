@@ -84,6 +84,10 @@ button,input,select,textarea{-webkit-tap-highlight-color:transparent}button{tran
 .member-lookup button{height:43px;border-radius:10px;padding:0 12px;white-space:nowrap}
 .member-lookup button.loading{pointer-events:none;opacity:.7}
 #memberLookupStatus{min-height:14px}
+/* 組合員名簿から読み込んだ項目（読み取り専用） */
+.member-locked{background:#f2f2f7!important;color:#3a3a3c;border-color:rgba(60,60,67,.1)!important;cursor:not-allowed}
+.member-locked:hover{border-color:rgba(60,60,67,.1)!important}
+select.member-locked{opacity:.9}
 @media(max-width:760px){
   .side{max-height:none}
   .side-panel{max-height:none;overflow:visible}

@@ -19,7 +19,7 @@
                 </div>
                 <div>
                   <label>管理店舗</label>
-                  <input name="management_store">
+                  <input name="management_store" data-member-field>
                 </div>
                 <div>
                   <label>担当者</label>
@@ -31,6 +31,7 @@
             <!-- 購読者情報 -->
             <div class="section">
               <div class="section-title">購読者情報</div>
+              <p class="help" id="memberFieldHint" style="margin:-8px 0 14px">組合員番号を入力して「読込」すると、氏名・住所などは組合員名簿から自動表示されます（編集不可）。組合員番号が空欄のときは手入力できます。</p>
               <div class="grid">
                 <div>
                   <label>組合員番号</label>
@@ -42,27 +43,27 @@
                 </div>
                 <div>
                   <label>氏名<span class="req">*</span></label>
-                  <input name="name" required>
+                  <input name="name" required data-member-field>
                 </div>
                 <div>
                   <label>フリガナ</label>
-                  <input name="furigana">
+                  <input name="furigana" data-member-field>
                 </div>
                 <div>
                   <label>郵便番号</label>
-                  <input name="zip_code" placeholder="000-0000">
+                  <input name="zip_code" placeholder="000-0000" data-member-field>
                 </div>
                 <div class="full">
                   <label>住所</label>
-                  <input name="address">
+                  <input name="address" data-member-field>
                 </div>
                 <div>
                   <label>電話番号</label>
-                  <input name="phone" placeholder="000-0000-0000">
+                  <input name="phone" placeholder="000-0000-0000" data-member-field>
                 </div>
                 <div>
                   <label>購読者属性</label>
-                  <select name="subscriber_type">
+                  <select name="subscriber_type" data-member-field>
                     <option value=""></option>
                     <option>正組合員</option>
                     <option>准組合員</option>
