@@ -5,10 +5,9 @@ let memberLookupSeq = 0;
 let lastMemberLookup = { no: '', record: null };
 let formDirty = false;
 
-// 組合員名簿から読み込む項目（組合員番号があるときは読み取り専用）
+// 組合員名簿から読み込んだ項目（名簿照合に成功したときだけ読み取り専用）
 const MEMBER_FIELDS = ['management_store','name','furigana','zip_code','address','phone','subscriber_type'];
 
-// 組合員番号の有無で名簿項目の編集可否を切り替える
 function setMemberLock(locked) {
   MEMBER_FIELDS.forEach(n => {
     const el = form.elements[n];
@@ -18,8 +17,10 @@ function setMemberLock(locked) {
     el.classList.toggle('member-locked', locked);
   });
 }
+// 名簿の読込が成功している番号のときだけロック（見つからない/未照合なら手入力可）
 function syncMemberLock() {
-  setMemberLock(!!String(form.elements.member_no.value || '').trim());
+  const no = String(form.elements.member_no.value || '').trim();
+  setMemberLock(!!(no && lastMemberLookup.record && lastMemberLookup.no === no));
 }
 
 async function lookupMember() {
@@ -38,15 +39,18 @@ async function lookupMember() {
     if (!d.ok) throw new Error(d.message);
     if (!d.record) {
       lastMemberLookup = { no: '', record: null };
-      status.textContent = '一致する組合員は見つかりませんでした。';
+      syncMemberLock();
+      status.textContent = '一致する組合員は見つかりませんでした。手入力で登録できます。';
       return;
     }
-    applyMemberRecord(d.record);
     lastMemberLookup = { no, record: d.record };
+    applyMemberRecord(d.record);
     status.textContent = '組合員名簿から読み込みました。';
   } catch(e) {
     if (seq === memberLookupSeq) {
-      status.textContent = '読み込みに失敗しました。';
+      lastMemberLookup = { no: '', record: null };
+      syncMemberLock();
+      status.textContent = '名簿を読み込めませんでした。手入力で登録できます。';
       show('error', '組合員名簿の読み込みに失敗しました。\n' + e.message);
     }
   } finally {
@@ -130,6 +134,8 @@ async function loadRecord(id) {
     const r = (d.records || []).find(x => String(x.id) === String(id));
     if (!r) { show('error', '対象の契約が見つかりませんでした。'); return; }
     fillForm(r);
+    // 組合員番号があれば名簿の最新値で再表示＋ロック（名簿が読めない場合は保存値のまま手入力可）
+    if (String(r.member_no || '').trim()) await lookupMember();
     formDirty = false;
   } catch(e) {
     show('error', '契約の読み込みに失敗しました。\n' + e.message);
